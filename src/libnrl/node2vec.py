@@ -1,7 +1,7 @@
 import time
 from gensim.models import Word2Vec
 import walker
-
+import numpy as np
 
 class Node2vec(object):
 
@@ -30,9 +30,18 @@ class Node2vec(object):
         print "Learning representation..."
         word2vec = Word2Vec(**kwargs)
         self.vectors = {}
-        for word in graph.G.nodes():
+        
+        for v_i,word in enumerate(self.graph.get_nx_graph().nodes()):
             self.vectors[word] = word2vec[word]
         del word2vec
+
+    def get_embedding():
+        vertex_size = len(self.graph.G.nodes())
+        embed_matrix = np.zeros(dtype=np.float32, shape=(vertex_size, self.size) )
+        #print 
+        for i,word in enumerate(self.graph.G.nodes()):
+            embed_matrix[i,:]= self.vectors[word]
+        return embed_matrix
 
     def save_embeddings(self, filename):
         fout = open(filename, 'w')
