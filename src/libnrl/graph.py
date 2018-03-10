@@ -26,6 +26,10 @@ class Graph(object):
             self.node_size += 1
             self.G.nodes[node]['status'] = ''
 
+
+    def get_nx_graph(self):
+        return self.G
+        
     def read_adjlist(self, filename):
         """ Read graph from adjacency file in which the edge must be unweighted
             the format of each line: v1 n1 n2 n3 ... nk
@@ -36,28 +40,49 @@ class Graph(object):
             self.G[i][j]['weight'] = 1.0
         self.encode_node()
 
+    def read_npy_adjmat (self, A): 
+        self.G = nx.from_numpy_matrix(A, create_using=nx.DiGraph())
+        self.encode_node()
+
     def read_edgelist(self, filename, weighted=False, directed=False):
         self.G = nx.DiGraph()
 
         if directed:
             def read_unweighted(l):
-                src, dst = l.split()
+                if l.lstrip().startswith('#'):
+                    return
+
+                try:
+                    src, dst = l.split()
+                except ValueError as e :
+                    print ("Trouble parsing line")
+                    print(l)
                 self.G.add_edge(src, dst)
                 self.G[src][dst]['weight'] = 1.0
 
             def read_weighted(l):
+                if l.lstrip().startswith('#'):
+                    return
                 src, dst, w = l.split()
                 self.G.add_edge(src, dst)
                 self.G[src][dst]['weight'] = float(w)
         else:
             def read_unweighted(l):
-                src, dst = l.split()
+                if l.lstrip().startswith('#'):
+                    return
+                try:
+                    src, dst = l.split()
+                except ValueError as e:
+                    print ("Trouble parsing line")
+                    print(l)
                 self.G.add_edge(src, dst)
                 self.G.add_edge(dst, src)
                 self.G[src][dst]['weight'] = 1.0
                 self.G[dst][src]['weight'] = 1.0
 
             def read_weighted(l):
+                if l.lstrip().startswith('#'):
+                    return
                 src, dst, w = l.split()
                 self.G.add_edge(src, dst)
                 self.G.add_edge(dst, src)
